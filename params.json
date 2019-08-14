@@ -1,0 +1,10 @@
+[
+	{
+		"ParameterKey": "KeyName",
+		"ParameterValue": "fmonthel"
+	},
+	{
+		"ParameterKey": "InstanceType",
+		"ParameterValue": "t2.nano"
+	}
+]

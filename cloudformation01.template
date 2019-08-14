@@ -1,0 +1,73 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+	"Description" : "Single Instance",
+	"Parameters" : {
+		"KeyName" : {
+			"Description" : "Name of and existing EC2 SSH KeyPair",
+			"Type" : "AWS::EC2::KeyPair::KeyName",
+			"ConstraintDescription" : "Must be the name of valid EC2 KeyPair"
+		},
+		"InstanceType" : {
+			"Description" : "WebServer Instance Type",
+			"Type" : "String",
+			"Default" : "t2.nano",
+			"AllowedValues" : [
+				"t2.nano",
+				"t2.micro"
+			]
+		}
+	},
+	"Resources" : {
+		"MyWebServer" : {
+			"Type" : "AWS::EC2::Instance",
+			"Properties" : {
+				"ImageId" : "ami-082b5a644766e0e6f",
+				"InstanceType" : { "Ref" : "InstanceType" },
+				"SecurityGroups" : [
+					{ "Ref" : "MyWebSecurityGroup" }
+				],
+				"KeyName" : { "Ref" : "KeyName" },
+				"Tags" : [
+					{
+						"Key" : "Name",
+						"Value" : "web"
+					}
+				],
+				"UserData" : {
+					"Fn::Base64" : {
+						"Fn::Join" : [
+							"",
+							[
+								"#!/bin/bash\n",
+								"yum install -y httpd\n",
+								"service httpd start\n",
+								"echo '<h1>Hello World</h1>' > /var/www/html/index.html",
+								"\n"
+							]
+						]
+					}
+				}
+			}
+		},
+		 "MyWebSecurityGroup" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "GroupDescription" : "Enable SSH and HTTP access",
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "FromPort"   : "22",
+                        "ToPort"     : "22",
+                        "CidrIp"     : "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "FromPort"   : "80",
+                        "ToPort"     : "80",
+                        "CidrIp"     : "0.0.0.0/0"
+                    }
+                ]
+            }
+        }
+	}
+}
